@@ -4,6 +4,7 @@
   "description": "API to test validity of a user which may be a space troll.",
   "main": "server/server.js",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "morgan": "^1.7.0"
   },
   "devDependencies": {},
