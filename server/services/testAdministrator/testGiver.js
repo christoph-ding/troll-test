@@ -1,7 +1,6 @@
 var fs = require('fs');
 var path = require('path');
 
-
 var testDataDirectory = path.join(__dirname, '/data/');
 
 // Choosing a dataset
@@ -34,10 +33,14 @@ var readRandomFileContents = function (files, next) {
     if (err) {
       throw err;
     } else {
-      // variable "content" is all the words in the sample data file, unformatted,
+      // variable "original Content" is all the words in the sample data file, unformatted,
       // variable "uniqueWords" is a list of the unique words, cleaned of punctation, escapes and made case-consistent.
       // we will use "uniqueWords" to decide what words should be excluded in the test
-      var uniqueWords = cleanWords(content);
+      var originalContent = content;
+      var cleanedWords = cleanWords(content);
+      var uniqueWords = getUniqueWords(cleanedWords);
+
+      console.log(uniqueWords);
       next();
     }
   });
@@ -46,21 +49,34 @@ var readRandomFileContents = function (files, next) {
 // the words in the chosen file may have punctuation and escapes and capitalization
 // let's clean and format the words so that 'Eat', eat', 'eat.' and 'eat\n' are all counted as the same word
 var cleanWords = function(content) {
-  console.log('cleaning the content...');
-  var splitWords = content.split(' ');
-  // console.log(splitWords);
 
-  var cleanString = function(string) {
-    // remove escapes
-    string = string.replace(/\\/g, "");
+  var standardizeString = function(string, index, array) {
+    // remove escapes and new lines
+    var cleanedString = string.replace(/[\r\n]/g, "");
     // remove punctuation
-    string = string.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,"");
+    cleanedString = cleanedString.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,"");
     // remove variant capitalization
-    string = string.toLowerCase();
-    console.log(string);
+    cleanedString = cleanedString.toLowerCase();
+    array[index] = cleanedString;
   }
 
-  splitWords.forEach(cleanString);
+  var splitWords = content.split(' ');  
+  splitWords.forEach(standardizeString);
+  return splitWords;
+}
+
+var getUniqueWords = function(content) {
+
+  var checkUnique = function(string) {
+    if (!(string in uniqueWordsHash)) {
+      uniqueWordsHash[string] = true;
+    } 
+  }
+
+  // the Hash is simply used in this function to get unique words quickly, it is NOT the output
+  var uniqueWordsHash = {};
+  content.forEach(checkUnique);
+  return Object.keys(uniqueWordsHash);
 }
 
 var selectExcludedWords = function(content) {
