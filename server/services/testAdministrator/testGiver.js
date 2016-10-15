@@ -2,14 +2,14 @@ var fs = require('fs');
 var path = require('path');
 
 var testDataDirectory = path.join(__dirname, '/data/');
-
-// Choosing a dataset
-var chooseDataSet = function(req, res, next) {
-  readDataFiles(next);
+ 
+var getTest = function(req, res, cb) {
+  console.log('generating a test...');
+  readDataFiles(cb);
 }
 
 // Get all the possible sample texts from the sample data diectory
-var readDataFiles = function(next) {
+var readDataFiles = function(cb) {
   fs.readdir(testDataDirectory, function(err, items) {
     if (err) {
       throw err;
@@ -19,28 +19,30 @@ var readDataFiles = function(next) {
         return file.includes('.txt');
       }
       var sampleTexts = items.filter(isTextFile);      
-      readRandomFileContents(sampleTexts, next);
+      readRandomFileContents(sampleTexts, cb);
     }
   });
 }
 
 // Choose a random file, and then read its contents
-var readRandomFileContents = function (files, next) {
-  var sampleTextName = files[Math.floor(Math.random() * files.length)];
-  var sampleTextPath = path.join(testDataDirectory, sampleTextName);
+var readRandomFileContents = function (files, cb) {
+  var sampleTextFile = files[selectRandomIndex(files)];
+  var sampleTextPath = path.join(testDataDirectory, sampleTextFile);
 
-  fs.readFile(sampleTextPath, 'utf-8', function(err, content) {
+  fs.readFile(sampleTextPath, 'utf-8', function(err, originalContent) {
     if (err) {
       throw err;
     } else {
-      // variable "original Content" is all the words in the sample data file, unformatted,
-      // variable "uniqueWords" is a list of the unique words, cleaned of punctation, escapes and made case-consistent.
-      // we will use "uniqueWords" to decide what words should be excluded in the test
-      var originalContent = content;
-      var uniqueStandardWords = getStandardUniqueWords(content);
+      // variable "original Content" is all the words in the sampleTextFile, unformatted,
+      // variable "uniqueStandardWords" is a list of the unique words, cleaned of punctation, escapes and made case-consistent.
+      // we will use "uniqueStandardWords" to decide what words should be excluded in the test
+      var uniqueStandardWords = getStandardUniqueWords(originalContent);
+      console.log('uniqueStandardWords: ', uniqueStandardWords, ' length: ', uniqueStandardWords.length);
 
-      console.log(uniqueStandardWords);
-      next();
+      var excludedWords = selectExcludedWords(uniqueStandardWords);
+
+      console.log('excludedWords: ' , excludedWords, ' length: ', excludedWords.length);
+      cb();      
     }
   });
 }
@@ -59,10 +61,8 @@ var standardizeString = function(string) {
 
 // we want to have a list of the unique, standarized words in the content, to easily generate a list of words the user should exclude
 var getStandardUniqueWords = function(content) {
-
   var standardizeAndCheckUnique = function(string) {
     var standarizedString = standardizeString(string);
-
     if (!(standarizedString in uniqueWordsHash)) {
       uniqueWordsHash[standarizedString] = true;
     } 
@@ -76,8 +76,27 @@ var getStandardUniqueWords = function(content) {
   return Object.keys(uniqueWordsHash);
 }
 
+var selectRandomIndex = function(myArray) {
+  var randIndex = Math.floor(Math.random() * myArray.length);
+  return randIndex;
+}
+
+// choose a random number of words from the standardized, unique words in the test content to exclude
 var selectExcludedWords = function(wordList) {
-  
+  // make a copy to preserve itegrity of original list
+  // we want to 'destroy' the elements in the copy, so that we do not choose multiples of the same word by accident
+  var copyWordList = wordList.slice();
+  var numberToExclude = selectRandomIndex(wordList) + 1;
+  var excludedWords = [];
+
+  while (numberToExclude--) {
+    var excludedWordIndex = selectRandomIndex(copyWordList);
+    excludedWords.push(copyWordList[excludedWordIndex]);
+    // remove the excluded word from the list of potential words, to avoid awkward repeats
+    copyWordList.splice(excludedWordIndex, 1);
+  }
+
+  return excludedWords;
 }
 
 var createJSONResponse = function(req, res, next) {
@@ -85,5 +104,6 @@ var createJSONResponse = function(req, res, next) {
 }
 
 module.exports = {
-  chooseDataSet: chooseDataSet
+  getTest: getTest
+  // chooseDataSet: chooseDataSet
 }
