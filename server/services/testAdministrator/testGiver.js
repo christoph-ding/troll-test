@@ -33,22 +33,26 @@ var readRandomFileContents = function (files, cb) {
     if (err) {
       throw err;
     } else {
-      // variable "original Content" is all the words in the sampleTextFile, unformatted,
-      // variable "uniqueStandardWords" is a list of the unique words, cleaned of punctation, escapes and made case-consistent.
-      // we will use "uniqueStandardWords" to decide what words should be excluded in the test
-      var uniqueStandardWords = getStandardUniqueWords(originalContent);
-      var excludedWords = selectExcludedWords(uniqueStandardWords);
-
-      console.log('excludedWords: ' , excludedWords, ' length: ', excludedWords.length);
-      console.log('uniqueStandardWords: ', uniqueStandardWords, ' length: ', uniqueStandardWords.length);
-
-      // 
-      var JSONTest = createJSONResponse(originalContent, excludedWords);
-      console.log('JSON is: ', JSONTest);
-
-      cb();      
+      generateTest(originalContent, cb);
     }
   });
+}
+
+var generateTest = function(originalContent, cb) {
+  // variable "original Content" is all the words in the sampleTextFile, unformatted,
+  // variable "uniqueStandardWords" is a list of the unique words, cleaned of punctation, escapes and made case-consistent.
+  // we will use "uniqueStandardWords" to decide what words should be excluded in the test
+  var uniqueStandardWords = getStandardUniqueWords(originalContent);
+  var excludedWords = selectExcludedWords(uniqueStandardWords);
+
+  console.log('excludedWords: ' , excludedWords, ' length: ', excludedWords.length);
+  console.log('uniqueStandardWords: ', uniqueStandardWords, ' length: ', uniqueStandardWords.length);
+
+  // 
+  var JSONTest = createJSONResponse(originalContent, excludedWords);
+  console.log('JSON is: ', JSONTest);
+
+  cb();
 }
 
 // the words in the chosen file may have punctuation and escapes and capitalization
