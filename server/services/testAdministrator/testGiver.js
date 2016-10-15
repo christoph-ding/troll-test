@@ -37,11 +37,15 @@ var readRandomFileContents = function (files, cb) {
       // variable "uniqueStandardWords" is a list of the unique words, cleaned of punctation, escapes and made case-consistent.
       // we will use "uniqueStandardWords" to decide what words should be excluded in the test
       var uniqueStandardWords = getStandardUniqueWords(originalContent);
-      console.log('uniqueStandardWords: ', uniqueStandardWords, ' length: ', uniqueStandardWords.length);
-
       var excludedWords = selectExcludedWords(uniqueStandardWords);
 
       console.log('excludedWords: ' , excludedWords, ' length: ', excludedWords.length);
+      console.log('uniqueStandardWords: ', uniqueStandardWords, ' length: ', uniqueStandardWords.length);
+
+      // 
+      var JSONTest = createJSONResponse(originalContent, excludedWords);
+      console.log('JSON is: ', JSONTest);
+
       cb();      
     }
   });
@@ -83,11 +87,22 @@ var selectRandomIndex = function(myArray) {
 
 // choose a random number of words from the standardized, unique words in the test content to exclude
 var selectExcludedWords = function(wordList) {
+  // texts with only one unique word should use an empty list
+  if (wordList.length === 1) {
+    return [];  
+  }
+  // Otherwise, we create a list of some but not all words in that body of text
+
   // make a copy to preserve itegrity of original list
   // we want to 'destroy' the elements in the copy, so that we do not choose multiples of the same word by accident
   var copyWordList = wordList.slice();
-  var numberToExclude = selectRandomIndex(wordList) + 1;
   var excludedWords = [];
+
+  var numberToExclude = selectRandomIndex(wordList) + 1;
+  // 'reroll' until we get a number that is less than all words
+  while (numberToExclude === copyWordList.length) {
+    numberToExclude = selectRandomIndex(wordList) + 1;    
+  }
 
   while (numberToExclude--) {
     var excludedWordIndex = selectRandomIndex(copyWordList);
@@ -99,8 +114,12 @@ var selectExcludedWords = function(wordList) {
   return excludedWords;
 }
 
-var createJSONResponse = function(req, res, next) {
-
+var createJSONResponse = function(originalContent, excludedWords) {
+  var json = JSON.stringify({
+    passage: originalContent, 
+    exclude: excludedWords
+    })
+  return json;
 }
 
 module.exports = {
