@@ -3,12 +3,21 @@ var path = require('path');
 
 var testDataDirectory = path.join(__dirname, '/data/');
  
-var getTest = function(req, res, cb) {
-  console.log('generating a test...');
-  readDataFiles(cb);
+// this closure is so the final function can access the response object without needing to pass it all the way down
+var generateClosure = function(req, res, cb) {
+  return function(data) {
+    res.writeHead({"Content-Type": "application/json"});
+    res.write(data);
+    res.status(200);
+    cb();
+  };
 }
 
-// Get all the possible sample texts from the sample data diectory
+var getTest = function(req, res, cb) {  
+  newCallBack = generateClosure(req, res, cb);
+  readDataFiles(newCallBack);
+}
+
 var readDataFiles = function(cb) {
   fs.readdir(testDataDirectory, function(err, items) {
     if (err) {
@@ -18,6 +27,7 @@ var readDataFiles = function(cb) {
       var isTextFile = function(file) {
         return file.includes('.txt');
       }
+
       var sampleTexts = items.filter(isTextFile);      
       readRandomFileContents(sampleTexts, cb);
     }
@@ -44,15 +54,9 @@ var generateTest = function(originalContent, cb) {
   // we will use "uniqueStandardWords" to decide what words should be excluded in the test
   var uniqueStandardWords = getStandardUniqueWords(originalContent);
   var excludedWords = selectExcludedWords(uniqueStandardWords);
-
-  console.log('excludedWords: ' , excludedWords, ' length: ', excludedWords.length);
-  console.log('uniqueStandardWords: ', uniqueStandardWords, ' length: ', uniqueStandardWords.length);
-
-  // 
   var JSONTest = createJSONResponse(originalContent, excludedWords);
-  console.log('JSON is: ', JSONTest);
 
-  cb();
+  cb(JSONTest);
 }
 
 // the words in the chosen file may have punctuation and escapes and capitalization
@@ -128,5 +132,4 @@ var createJSONResponse = function(originalContent, excludedWords) {
 
 module.exports = {
   getTest: getTest
-  // chooseDataSet: chooseDataSet
 }
