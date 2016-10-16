@@ -13,6 +13,11 @@ var checkTest = function(req, res, next) {
   // 3.  compare the two
   var answerIsCorrect = checkAnswer(frequency, correctFrequency);
   // 4.  create the response
+  
+
+
+
+  console.log(answerIsCorrect);
 
   next();
 }
@@ -47,7 +52,7 @@ var standardizeString = function(string) {
 }
 
 var generateCorrectFrequency = function(passage, exclude, frequencyHash) {
-  
+
   var correctFrequency = {};
 
   var addToFrequencey = function(word) {
@@ -71,8 +76,18 @@ var generateCorrectFrequency = function(passage, exclude, frequencyHash) {
   return correctFrequency;
 }
 
-var checkAnswer = function() {
+var checkAnswer = function(userSubmission, correctAnswer) {
+  var checkFrequency = function(word) {
+    var userFrequency = userSubmission[word];
+    var correctFrequency = correctAnswer[word];
+    return userFrequency === correctFrequency;
+  }
 
+  if (Object.keys(userSubmission).every(checkFrequency)) {
+    return true;
+  }
+
+  return false;
 }
 
 module.exports = {
