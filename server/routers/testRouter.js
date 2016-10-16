@@ -5,7 +5,7 @@ module.exports = function(express) {
   var testRouter = express.Router();
 
   testRouter.get('/', testGiver.getTest);  
-  testRouter.post('/', testChecker.testFunction);
+  testRouter.post('/', testChecker.checkTest);
 
   return testRouter;
 }
