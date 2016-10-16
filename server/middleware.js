@@ -11,5 +11,5 @@ module.exports = function(app, express) {
 
   var testRouter = require('./routers/testRouter.js')(express);
 
-  app.use('/test', testRouter, endReqResCycle);
+  app.use('/', testRouter, endReqResCycle);
 }
