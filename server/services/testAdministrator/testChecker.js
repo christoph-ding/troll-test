@@ -1,6 +1,6 @@
 var checkTest = function(req, res, next) {
   console.log('checkTest');
-  // 1.  parse the JSON data
+  // 1.  parse the JSON data into the form we want to use for the rest of the functions
   var userTest = parseJSON(req);
 
   var passage = userTest[0];
@@ -9,10 +9,9 @@ var checkTest = function(req, res, next) {
 
   // 2.  generate the correct answer from that JSON
   var correctFrequency = generateCorrectFrequency(passage, exclude, frequency);
-  console.log(correctFrequency);
 
   // 3.  compare the two
-
+  var answerIsCorrect = checkAnswer(frequency, correctFrequency);
   // 4.  create the response
 
   next();
@@ -22,7 +21,7 @@ var parseJSON = function(req) {
   var submittedTest = req.body;
   // This is my interpretation of the prompt description of what the request will have
   // 'A body of text'
-  var passage = submittedTest['passage'];
+  var passage = submittedTest['passage'].split(' ');
 
   // make the list of the excluded words into a hash for easy lookup
   var excludeHash = {};
@@ -48,33 +47,32 @@ var standardizeString = function(string) {
 }
 
 var generateCorrectFrequency = function(passage, exclude, frequencyHash) {
+  
+  var correctFrequency = {};
 
-  var compareStandardizedWord = function(item) {
-    // we need to make sure that we can filter words out, even after inconsistencies in punctuation and escapes and capitalization
-    var standardizedString = standardizeString(item);
-    if (!(standardizedString in exclude)) {
-      passageWithoutExcludedWords.push(item);
+  var addToFrequencey = function(word) {
+    if (!(word in correctFrequency)) {
+      correctFrequency[word] = 1;
+    } else {
+      correctFrequency[word]++;
     }
   }
 
-  // generate the correct answer
-  var passageArray = passage.split(' ');
-  var passageWithoutExcludedWords = [];
+  var determineFrequency = function(item) {
+    var standardizedWord = standardizeString(item);
+    // count the word if it is not supposed to be excluded
+    if (!(standardizedWord in exclude)) {
+      addToFrequencey(standardizedWord);
+    }
+  };
 
-  passageArray.forEach(compareStandardizedWord);
+  passage.forEach(determineFrequency);
 
-  return passageWithoutExcludedWords;
+  return correctFrequency;
 }
 
+var checkAnswer = function() {
 
-
-
-var checkAnswer = function(req, res, next) {
-
-}
-
-var returnAnswer = function(req, res, next) {
-  
 }
 
 module.exports = {
