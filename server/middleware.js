@@ -2,7 +2,7 @@ var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
 var endReqResCycle = function(req, res) {
-  res.end();
+  res.end('\n');
 }
 
 module.exports = function(app, express) {
