@@ -1,5 +1,4 @@
 var checkTest = function(req, res, next) {
-  console.log('checkTest');
   // 1.  parse the JSON data into the form we want to use for the rest of the functions
   var userTest = parseJSON(req);
 
@@ -10,14 +9,15 @@ var checkTest = function(req, res, next) {
   // 2.  generate the correct answer from that JSON
   var correctFrequency = generateCorrectFrequency(passage, exclude, frequency);
 
-  // 3.  compare the two
+  // 3.  compare the user answer and the correct answer
   var answerIsCorrect = checkAnswer(frequency, correctFrequency);
+
   // 4.  create the response
-  
-
-
-
-  console.log(answerIsCorrect);
+  if (answerIsCorrect) {
+    res.status(200);
+  } else {
+    res.status(400);
+  }
 
   next();
 }
@@ -83,10 +83,10 @@ var checkAnswer = function(userSubmission, correctAnswer) {
     return userFrequency === correctFrequency;
   }
 
+  // is every answer correct?
   if (Object.keys(userSubmission).every(checkFrequency)) {
     return true;
   }
-
   return false;
 }
 
