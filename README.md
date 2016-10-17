@@ -3,6 +3,7 @@
 ## Instructions
         # Get my code
         git clone https://github.com/ironpup/troll-test
+        cd troll-test
 
         # install the dependencies / create a local environment
         npm install
@@ -45,3 +46,5 @@ If I had more time or was in a work environment, I would have used sinon to mock
 random number generation for the sake of testing, but ran out of time here.
 
 I mock quite often, and I would certainly write more tests.
+
+Finally, I would review my commit log and probably squash many commits.
