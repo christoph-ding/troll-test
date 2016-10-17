@@ -1,14 +1,14 @@
 # Word Count Validator
 
 ## Instructions
-  # Get my code
-  git clone https://github.com/ironpup/troll-test
-  # install the dependencies / create a local environment
-  npm install
-  # run the tests
-  npm test
-  # start the server
-  npm start
+      # Get my code
+      git clone https://github.com/ironpup/troll-test
+      # install the dependencies / create a local environment
+      npm install
+      # run the tests
+      npm test
+      # start the server
+      npm start
 
 ## Assumptions
 
