@@ -4,8 +4,10 @@ var app = express();
 
 var port = 8000;
 
-app.listen(port, function() {
+var server = app.listen(port, function() {
   console.log('Listening');
 });
 
 require('./middleware.js')(app, express);
+
+module.exports = server;
