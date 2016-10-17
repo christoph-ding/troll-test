@@ -1,7 +1,6 @@
 var fs = require('fs');
 var path = require('path');
 
-// var testDataDirectory = path.join(__dirname, '../data/');
 /*
   TABLE OF CONTENTS FOR THIS FILE
   use ctrl + F on number to jump to

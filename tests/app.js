@@ -1,6 +1,7 @@
 var request = require('supertest');
 
 describe('server', function() {
+  // hook to set up a server  
   var app;
   before(function () {
       app = require('../server/server.js');
