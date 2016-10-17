@@ -4,12 +4,32 @@ var path = require('path');
 
 describe('Utility Library', function() {
 
+  describe('standardizeString', function() {
+    it ('cleans punctuation', function() {
+      var nonStandardString = 'hello!';
+      var standardizedString = u.standardizeString(nonStandardString);
+      standardizedString.should.eql('hello');
+    })
+
+    it ('formats upper and lowercase', function() {
+      var nonStandardString = 'HeLLo';
+      var standardizedString = u.standardizeString(nonStandardString);
+      standardizedString.should.eql('hello');
+    })
+
+    it ('cleans escapes', function() {
+      var nonStandardString = 'hello\n';
+      var standardizedString = u.standardizeString(nonStandardString);
+      standardizedString.should.eql('hello');
+    })
+  })
+
   describe('Test Generation', function() {    
     // we need to get a sample test from the server, but without calling the server
     var generatedTest;
     var sampleDataDir = path.join(__dirname + '/data/');
 
-    beforeEach(function(done) {
+    before(function(done) {
       var setGeneratedTest = function(test) {
         generatedTest = JSON.parse(test);
         done();
@@ -26,4 +46,56 @@ describe('Utility Library', function() {
       generatedTest.exclude.length.should.not.eql(5);
     });
   })
+
+  describe('Test Checking', function() {
+    it('should return true if the test is correct', function() {
+      var userRequest = {
+        body: {
+          passage: 'this is a passage',
+          exclude: ['this'],
+          frequency: { 'is': 1, 'a': 1, 'passage': 1 }
+        }
+      }
+      var isUserCorrect = u.checkTest(userRequest);
+      isUserCorrect.should.eql(true);
+    })
+
+    it('should return false if the test is incorrect', function() {
+      var userRequest = {
+        body: {
+          passage: 'this is a passage',
+          exclude: ['this'],
+          frequency: { 'is': 1, 'a': 1, 'passage': 3 }
+        }
+      }
+      var isUserCorrect = u.checkTest(userRequest);
+      isUserCorrect.should.eql(false);
+    })
+
+    it('should not care what order the user chooses to put his keys for the word / frequency in the request', function() {
+      var userRequest = {
+        body: {
+          passage: 'this is a passage',
+          exclude: ['this'],
+          frequency: { 'a': 1, 'passage': 1, 'is': 1}
+        }
+      }
+      var isUserCorrect = u.checkTest(userRequest);
+      isUserCorrect.should.eql(true);
+
+    })
+
+    it('should handle complicated passages', function() {
+      var userRequest = {
+        body: {
+          passage: 'this is a passage. this PassAGE! is weird... is this PassAGE weird?',
+          exclude: ['this', 'is', 'a'],
+          frequency: { 'passage': 3, 'weird': 2 }
+        }
+      }
+      var isUserCorrect = u.checkTest(userRequest);
+      isUserCorrect.should.eql(true);
+    })
+  })
+
 });

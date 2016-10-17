@@ -142,7 +142,7 @@ var checkTest = function(req) {
   var frequency = userTest[2];
 
   // 2.  generate the correct answer from that JSON
-  var correctFrequency = generateCorrectFrequency(passage, exclude, frequency);
+  var correctFrequency = generateCorrectFrequency(passage, exclude);
 
   // 3.  compare the user answer and the correct answer
   var answerIsCorrect = checkAnswer(frequency, correctFrequency);
@@ -167,19 +167,7 @@ var parseJSON = function(req) {
   return [passage, excludeHash, frequencyHash];
 }
 
-// the words in the chosen file may have punctuation and escapes and capitalization
-// let's clean and format the words so that 'Eat', eat', 'eat.' and 'eat\n' are all counted as the same word
-var standardizeString = function(string) {
-  // remove escapes and new lines
-  var cleanedString = string.replace(/[\r\n]/g, "");
-  // remove punctuation
-  cleanedString = cleanedString.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,"");
-  // remove variant capitalization
-  cleanedString = cleanedString.toLowerCase();
-  return cleanedString;
-}
-
-var generateCorrectFrequency = function(passage, exclude, frequencyHash) {
+var generateCorrectFrequency = function(passage, exclude) {
 
   var correctFrequency = {};
 
