@@ -1,21 +1,58 @@
-// var assert = require('assert');
-// var testGiver = require('../server/services/testAdministrator/testGiver');
-// var request = require('supertest');
+var should = require('should');
+var request = require('supertest');
 
-// describe('test giver', function() {
+describe('Test Giver', function() {
+  // hook
+  var app;
+  before(function () {
+      app = require('../server/server.js');
+  });
+  after(function () {
+      app.close();
+  });
 
-//   var app;
-//   before(function () {
-//       app = require('../server/server.js');
-//   });
-//   after(function () {
-//       app.close();
-//   });
+  describe('Test Giver Routing', function() {
+    // Test the router returns the correct json object with the test
+    it('responds with a JSON object', function testSlash(done) {
+      request(app)
+        .get('/test')
+        .expect('Content-Type', 'application/json', done)
+    });
 
-//   it('responds to GET request to /', function testSlash(done) {
-//     request(app)
-//       .get('/')
-//       .expect(200, done);
-//   });
+    it('responds with a JSON object that has a string passage', function testSlash(done) {
+      request(app)
+        .get('/test')
+        .end(function(err, result) {
+          result.body.should.have.property('passage');
+          result.body['passage'].should.be.a.String;
+          done()
+        })
+    });
 
-// });
+    it('responds with a JSON object that has a exclude list', function testSlash(done) {
+        request(app)
+          .get('/test')
+          .end(function(err, result) {
+            result.body.should.have.property('exclude');
+            result.body['exclude'].should.be.an.Array;
+            done()
+          })
+    });
+  });
+
+  describe('Test Giver Library', function() {
+    
+
+
+
+
+
+
+
+
+
+
+
+  });
+
+});

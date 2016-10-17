@@ -5,11 +5,13 @@
   "main": "server/server.js",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "morgan": "^1.7.0"
+  },
+  "devDependencies": {
     "mocha": "^3.1.2",
-    "morgan": "^1.7.0",
+    "should": "^11.1.1",
     "supertest": "^2.0.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "mocha tests/",
     "start": "nodemon server/server.js"

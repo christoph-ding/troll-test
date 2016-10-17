@@ -1,4 +1,3 @@
-var assert = require('assert');
 var request = require('supertest');
 
 describe('server', function() {
@@ -10,9 +9,9 @@ describe('server', function() {
       app.close();
   });
 
-  it('responds to requests to /', function testSlash(done) {
+  it('responds 200 to requests to /test', function testSlash(done) {
     request(app)
-      .get('/')
+      .get('/test')
       .expect(200, done);
   });
 

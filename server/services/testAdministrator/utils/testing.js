@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 
-var testDataDirectory = path.join(__dirname, '../data/');
+// var testDataDirectory = path.join(__dirname, '../data/');
 /*
   TABLE OF CONTENTS FOR THIS FILE
   use ctrl + F on number to jump to
@@ -9,7 +9,6 @@ var testDataDirectory = path.join(__dirname, '../data/');
   1.  General Utility Functions
   2.  Functions for generating test
   3.  Functions for checking user submitted test
-
 */
 
 // 1. GENERAL UTILITY FUNCTIONS
@@ -27,28 +26,34 @@ var standardizeString = function(string) {
 }
 
 // 2. FUNCTIONS FOR GENERATING TEST
-var getListOfAllSampleData = function(cb) {
-  fs.readdir(testDataDirectory, function(err, items) {
+var getValidSampleData = function(path, cb) {
+  fs.readdir(path, function(err, items) {
     if (err) {
       throw err;
     } else {
       // we do not want the hidden, folder files, such as .DSStore
-      var isTextFile = function(file) {
-        return file.includes('.txt');
+      var getFullTextPath = function(file) {
+        if (file.includes('.txt')) {
+          return path + file;
+        }
       }
 
-      var sampleTexts = items.filter(isTextFile);      
-      readRandomFileContents(sampleTexts, cb);
+      // get a list of the full paths of all text files
+      var validSampleTexts = items.map(getFullTextPath)
+                                  .filter(function(item) {
+                                    return typeof item !== 'undefined';
+                                  });
+
+      readRandomFileContents(validSampleTexts, cb);
     }
   });
 }
 
 // Choose a random file, and then read its contents
 var readRandomFileContents = function (files, cb) {
-  var sampleTextFile = files[selectRandomIndex(files)];
-  var sampleTextPath = path.join(testDataDirectory, sampleTextFile);
+  var sampleText = files[selectRandomIndex(files)];
 
-  fs.readFile(sampleTextPath, 'utf-8', function(err, originalContent) {
+  fs.readFile(sampleText, 'utf-8', function(err, originalContent) {
     if (err) {
       throw err;
     } else {
@@ -215,6 +220,7 @@ var checkAnswer = function(userSubmission, correctAnswer) {
 }
 
 module.exports = {
-  getListOfAllSampleData: getListOfAllSampleData,
+  standardizeString: standardizeString,
+  getValidSampleData: getValidSampleData,
   checkTest: checkTest
 }
